@@ -15,6 +15,28 @@
     flex:1; background:#2a2a2a; border-radius:8px; padding:15px; overflow:auto;
     font-size:24px; text-align:center; line-height:1.5; outline:none;
   }
+#editor {
+  scrollbar-width: thin;
+  scrollbar-color: #444 #2a2a2a;   /* very dark thumb + matching track */
+}
+
+#editor::-webkit-scrollbar {
+  width: 8px;
+}
+
+#editor::-webkit-scrollbar-track {
+  background: #2a2a2a;             /* exact editor bg → disappears into background */
+}
+
+#editor::-webkit-scrollbar-thumb {
+  background: #444;                /* super dark gray */
+  border-radius: 999px;
+  border: 2px solid #2a2a2a;      /* inset so it doesn't look blocky */
+}
+
+#editor::-webkit-scrollbar-thumb:hover {
+  background: #666;                /* noticeable only on hover */
+}
 </style>
 </head>
 <body>
