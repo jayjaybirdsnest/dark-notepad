@@ -6,10 +6,6 @@
 <title>Dark Notepad</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  body { margin:0; padding:10px; background:#1e1e1e; color:#fff; font-family:'Inter',sans-serif; height:100vh; display:flex; flex-direction:column; }
-  #toolbar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
-  #toolbar button, #toolbar select {
-    padding:5px 8px; border:none; border-radius:4px; background:#333; color:#fff; cursor:pointer;
   body {
     margin: 0;
     padding: 10px;
@@ -21,21 +17,29 @@
     flex-direction: column;
   }
 
-  #toolbar {
+  /* Center the toolbar horizontally */
+  #toolbar-container {
     display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+    justify-content: center;
     margin-bottom: 10px;
   }
 
-  #toolbar button,
-  #toolbar select {
-    padding: 5px 8px;
+  #toolbar {
+    display: flex;
+    gap: 12px;                    /* Slightly more spacing for better touch targets */
+    flex-wrap: wrap;
+    justify-content: center;      /* Centers buttons inside the toolbar */
+  }
+
+  #toolbar button {
+    padding: 8px 14px;            /* Bigger touch area */
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     background: #333;
     color: #fff;
     cursor: pointer;
+    font-size: 18px;              /* Slightly larger for visibility */
+    min-width: 50px;              /* Consistent button size */
   }
 
   #editor-wrapper {
@@ -43,112 +47,78 @@
     background: #2a2a2a;
     border-radius: 8px;
     overflow: auto;
-    padding: 15px;
+    padding: 20px;
   }
 
   #editor {
-    flex:1; background:#2a2a2a; border-radius:8px; padding:15px; overflow:auto;
-    font-size:24px; text-align:center; line-height:1.5; outline:none;
     height: 100%;
     min-height: 100%;
     outline: none;
-    font-size: 24px;
+    font-size: 32px;
     text-align: center;
     line-height: 1.5;
     background: transparent;
   }
 
-  /* Dark, blended scrollbar styling */
+  /* Hide scrollbar completely */
   #editor-wrapper {
-    scrollbar-width: thin;
-    scrollbar-color: #333 #2a2a2a;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 
   #editor-wrapper::-webkit-scrollbar {
-    width: 8px;
+    display: none;
   }
 
-  #editor-wrapper::-webkit-scrollbar-track {
-    background: #2a2a2a;
+  html, body {
+    overflow: hidden;
   }
-
-  #editor-wrapper::-webkit-scrollbar-thumb {
-    background: #333;
-    border-radius: 999px;
-    border: 2px solid #2a2a2a;
-  }
-
-  #editor-wrapper::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
-#editor {
-  scrollbar-width: thin;
-  scrollbar-color: #444 #2a2a2a;   /* very dark thumb + matching track */
-}
-
-#editor::-webkit-scrollbar {
-  width: 8px;
-}
-
-#editor::-webkit-scrollbar-track {
-  background: #2a2a2a;             /* exact editor bg → disappears into background */
-}
-
-#editor::-webkit-scrollbar-thumb {
-  background: #444;                /* super dark gray */
-  border-radius: 999px;
-  border: 2px solid #2a2a2a;      /* inset so it doesn't look blocky */
-}
-
-#editor::-webkit-scrollbar-thumb:hover {
-  background: #666;                /* noticeable only on hover */
-}
 </style>
 </head>
 <body>
-@@ -74,21 +112,32 @@
-  </select>
+
+<div id="toolbar-container">
+  <div id="toolbar">
+    <button onclick="document.execCommand('bold')"><b>B</b></button>
+    <button onclick="document.execCommand('italic')"><i>I</i></button>
+    <button onclick="document.execCommand('underline')"><u>U</u></button>
+  </div>
 </div>
 
-<div id="editor" contenteditable="true">Start typing here...</div>
 <div id="editor-wrapper">
   <div id="editor" contenteditable="true">Start typing here...</div>
 </div>
 
 <script>
-const editor = document.getElementById('editor');
-editor.innerHTML = localStorage.notes || editor.innerHTML;
-editor.addEventListener('input', () => localStorage.notes = editor.innerHTML);
-
-function setHeading(tag) { document.execCommand('formatBlock', false, tag); }
-function setFont(font) { document.execCommand('fontName', false, font); }
-function setFontSize(size) {
-  document.execCommand('fontSize', false, '7');
-  editor.querySelectorAll('font[size="7"]').forEach(f => f.removeAttribute('size'));
-  editor.style.fontSize = size + 'px';
-}
-function setAlign(alignment) { document.execCommand('justify' + alignment.charAt(0).toUpperCase() + alignment.slice(1)); }
   const editor = document.getElementById('editor');
-  editor.innerHTML = localStorage.notes || editor.innerHTML;
-  editor.addEventListener('input', () => localStorage.notes = editor.innerHTML);
 
-  function setHeading(tag) {
-    document.execCommand('formatBlock', false, tag);
-  }
+  // Load saved notes or use default
+  editor.innerHTML = localStorage.notes || '<p>Start typing here...</p>';
 
-  function setFont(font) {
-    document.execCommand('fontName', false, font);
-  }
+  // Save on every change
+  editor.addEventListener('input', () => {
+    localStorage.notes = editor.innerHTML;
+  });
 
-  function setFontSize(size) {
-    document.execCommand('fontSize', false, '7');
-    editor.querySelectorAll('font[size="7"]').forEach(f => f.removeAttribute('size'));
-    editor.style.fontSize = size + 'px';
-  }
-
-  function setAlign(alignment) {
-    document.execCommand('justify' + alignment.charAt(0).toUpperCase() + alignment.slice(1));
-  }
+  // Ctrl+B/I/U shortcuts
+  editor.addEventListener('keydown', (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key.toLowerCase()) {
+        case 'b':
+          e.preventDefault();
+          document.execCommand('bold');
+          break;
+        case 'i':
+          e.preventDefault();
+          document.execCommand('italic');
+          break;
+        case 'u':
+          e.preventDefault();
+          document.execCommand('underline');
+          break;
+      }
+    }
+  });
 </script>
 
 </body>
